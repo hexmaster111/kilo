@@ -12,6 +12,7 @@ Keys:
     CTRL-S: Save
     CTRL-Q: Quit
     CTRL-F: Find string in file (ESC to exit search, arrows to navigate)
+    SHIFT-Left / Right : Select Text (ESC to exit select, CTRL-C, CTRL-X, CTRL-V)
 
 Kilo does not depend on any library (not even curses). It uses fairly standard
 VT100 (and similar terminals) escape sequences. The project is in alpha
