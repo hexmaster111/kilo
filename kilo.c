@@ -1156,6 +1156,8 @@ void editorRefreshScreen(void)
 
                 if (filerow == E.sr) /* Selected Text Highlight */
                 {
+                    // BUG: somewhere this is not quite stopping it at the right line...
+
                     if (j == min(E.ss, E.se))
                     {
                         abAppend(&ab, "\x1b[7m", 4); /*negative color*/
@@ -1413,6 +1415,7 @@ int editorSelectText(int fd, int c)
     */
 
     E.sr = E.rowoff + E.cy; // set the selected row
+    //BUG: this should acccount for E.coloffset
 
     E.ss = E.cx; // save selection start index
     E.se = E.ss; // set the selection end
