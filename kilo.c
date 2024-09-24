@@ -198,6 +198,16 @@ int max(int a, int b)
     return (a < b) ? b : a;
 }
 
+int *minr(int *a, int *b)
+{
+    return (*a < *b) ? a : b;
+}
+
+int *maxr(int *a, int *b)
+{
+    return (*a < *b) ? b : a;
+}
+
 /* =========================== Syntax highlights DB =========================
  *
  * In order to add a new syntax, define two arrays with a list of file name
@@ -1402,16 +1412,31 @@ int editorSelectText(int fd, int c)
         2) while(1) for selecting more / copy paste
     */
 
-    E.sr = E.cy; // set the selected row
+    E.sr = E.rowoff + E.cy; // set the selected row
 
     E.ss = E.cx; // save selection start index
     E.se = E.ss; // set the selection end
 
+    erow r = E.row[E.sr];
+
     do
     {
-        erow r = E.row[E.cy];
-        int startIdx = min(E.ss, E.se);
-        int endIdx = max(E.ss, E.se);
+
+        int *lowv = minr(&E.ss, &E.se);
+        int *highv = maxr(&E.ss, &E.se);
+
+        if (*lowv < 0)
+        {
+            lowv = 0;
+        }
+
+        if (*highv > r.size)
+        {
+            *highv = r.size;
+        }
+
+        int startIdx = *lowv;
+        int endIdx = *highv;
         int len = endIdx - startIdx;
 
         if (c == SHIFT_ARROW_LEFT)
