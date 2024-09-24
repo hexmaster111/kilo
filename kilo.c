@@ -1427,7 +1427,7 @@ int editorSelectText(int fd, int c)
 
         if (*lowv < 0)
         {
-            lowv = 0;
+            *lowv = 0;
         }
 
         if (*highv > r.size)
@@ -1441,13 +1441,19 @@ int editorSelectText(int fd, int c)
 
         if (c == SHIFT_ARROW_LEFT)
         {
-            editorMoveCursor(ARROW_LEFT);
-            E.se--;
+            if (E.se > 0)
+            {
+                editorMoveCursor(ARROW_LEFT);
+                E.se--;
+            }
         }
         else if (c == SHIFT_ARROW_RIGHT)
         {
-            editorMoveCursor(ARROW_RIGHT);
-            E.se++;
+            if (E.se < r.size)
+            {
+                editorMoveCursor(ARROW_RIGHT);
+                E.se++;
+            }
         }
         else if (c == CTRL_C) /* COPY */
         {
