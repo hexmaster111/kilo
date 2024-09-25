@@ -1629,6 +1629,27 @@ void editorMoveCursor(int key)
     }
 }
 
+void editorCopyCurrentLine()
+{
+    erow r = E.row[E.cy + E.rowoff];
+
+    abFree(&E.clipboard);
+    abAppend(&E.clipboard, r.chars, r.size);
+
+    editorSetStatusMessage("Copied %d chars", r.size);
+}
+
+void editorCutCurrentLine()
+{
+    erow r = E.row[E.cy + E.rowoff];
+
+    abFree(&E.clipboard);
+    abAppend(&E.clipboard, r.chars, r.size);
+    editorDelRow(E.cy + E.rowoff);
+
+    editorSetStatusMessage("Cut %d chars", r.size);
+}
+
 /* Process events arriving from the standard input, which is, the user
  * is typing stuff on the terminal. */
 #define KILO_QUIT_TIMES 3
@@ -1656,12 +1677,12 @@ rehandle:
             goto rehandle; // user did something non-select related, lets handle it
         break;
 
-    case CTRL_C:
-        // Copy whole line
+    case CTRL_C: /* Copy entire line */
+        editorCopyCurrentLine();
         break;
 
-    case CTRL_X:
-        // Cut Whole line
+    case CTRL_X: /* Cut entire line */
+        editorCutCurrentLine();
         break;
 
     case CTRL_V:
