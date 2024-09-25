@@ -1165,7 +1165,6 @@ void editorRefreshScreen(void)
 
                     if (joff == max(E.ss, E.se)) /* end of user selection */
                     {
-                        // BUG:  this case is not hit when at the end of a line
                         abAppend(&ab, "\x1b[0m", 4); /*default color*/
                     }
 
