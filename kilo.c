@@ -1415,10 +1415,8 @@ int editorSelectText(int fd, int c)
     */
 
     E.sr = E.rowoff + E.cy; // set the selected row
-    //BUG: this should acccount for E.coloffset
-
-    E.ss = E.cx; // save selection start index
-    E.se = E.ss; // set the selection end
+    E.ss = E.cx + E.coloff; // save selection start index
+    E.se = E.ss;            // set the selection end
 
     erow r = E.row[E.sr];
 

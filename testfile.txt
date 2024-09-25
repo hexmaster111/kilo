@@ -1,8 +1,7 @@
 //this code is snippits from kilo.c
 
 struct editorConfig
-{
-    int ss, se, sr; /* Selection start, selection end, selection row */
+    int ss, se, sr; /* Selection start, selection end, selection row */ This is some text that will go on past what the size of the terminal is.
     int cx, cy;     /* Cursor x and y position in characters */
     int rowoff;     /* Offset of row displayed. */
     int coloff;     /* Offset of column displayed. */
