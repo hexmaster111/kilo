@@ -989,8 +989,13 @@ fixcursor:
     E.coloff = 0;
 }
 
-/* Delete the char at the current prompt position. */
+/* Delete char from the from of the prompt */
 void editorDelChar()
+{
+}
+
+/* Backspace the char at the prompt. */
+void editorBackspaceChar()
 {
     int filerow = E.rowoff + E.cy;
     int filecol = E.coloff + E.cx;
@@ -1500,7 +1505,7 @@ int editorSelectText(int fd, int c)
 
                 for (int i = 0; i < len; i++)
                 {
-                    editorDelChar();
+                    editorBackspaceChar();
                 }
             }
         }
@@ -1713,10 +1718,12 @@ rehandle:
     case CTRL_F:
         editorFind(fd);
         break;
-    case BACKSPACE: /* Backspace */
-    case CTRL_H:    /* Ctrl-h */
     case DEL_KEY:
         editorDelChar();
+        break;
+    case CTRL_H:    /* Ctrl-h */
+    case BACKSPACE: /* Backspace */
+        editorBackspaceChar();
         break;
     case PAGE_UP:
     case PAGE_DOWN:
@@ -1811,8 +1818,7 @@ int main(int argc, char **argv)
     editorSelectSyntaxHighlight(argv[1]);
     editorOpen(argv[1]);
     enableRawMode(STDIN_FILENO);
-    editorSetStatusMessage(
-        "HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find");
+    editorSetStatusMessage("HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find");
     while (1)
     {
         editorRefreshScreen();
