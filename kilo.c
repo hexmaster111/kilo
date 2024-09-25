@@ -1156,15 +1156,14 @@ void editorRefreshScreen(void)
 
                 if (filerow == E.sr) /* Selected Text Highlight */
                 {
-                    // BUG: somewhere this is not quite stopping it at the right line...
-
-                    if (j == min(E.ss, E.se))
+                    if (j + E.coloff == min(E.ss, E.se))
                     {
                         abAppend(&ab, "\x1b[7m", 4); /*negative color*/
                     }
 
-                    if (j == max(E.ss, E.se))
+                    if (j + E.coloff == max(E.ss, E.se))
                     {
+                        // BUG:  this case is not hit when at the end of a line
                         abAppend(&ab, "\x1b[0m", 4); /*default color*/
                     }
 
