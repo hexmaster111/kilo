@@ -1156,18 +1156,23 @@ void editorRefreshScreen(void)
 
                 if (filerow == E.sr) /* Selected Text Highlight */
                 {
-                    if (j + E.coloff == min(E.ss, E.se))
+                    int joff = j + E.coloff;
+
+                    if (joff == min(E.ss, E.se)) /* start of user selection */
                     {
                         abAppend(&ab, "\x1b[7m", 4); /*negative color*/
                     }
 
-                    if (j + E.coloff == max(E.ss, E.se))
+                    if (joff == max(E.ss, E.se)) /* end of user selection */
                     {
                         // BUG:  this case is not hit when at the end of a line
                         abAppend(&ab, "\x1b[0m", 4); /*default color*/
                     }
 
-                    abAppend(&ab, c + j, 1);
+                    abAppend(&ab, c + j, 1); /*hl the char we have selected before ending colors*/
+
+                    if (joff + 1 == r->size)         /* end of line */
+                        abAppend(&ab, "\x1b[0m", 4); /*default color*/
                 }
                 else if (hl[j] == HL_NONPRINT)
                 {
