@@ -184,6 +184,10 @@ enum KEY_ACTION
     SHIFT_ARROW_RIGHT,
     SHIFT_ARROW_UP,
     SHIFT_ARROW_DOWN,
+    CTRL_ARROW_LEFT,
+    CTRL_ARROW_RIGHT,
+    CTRL_ARROW_UP,
+    CTRL_ARROW_DOWN,
     CTRL_SHIFT_ARROW_LEFT,
     CTRL_SHIFT_ARROW_RIGHT,
     CTRL_SHIFT_ARROW_UP,
@@ -392,6 +396,23 @@ int editorReadKey(int fd)
                                 return SHIFT_ARROW_RIGHT;
                             case 'D':
                                 return SHIFT_ARROW_LEFT;
+                            }
+                        }
+                        else if (seq[3] == '5')
+                        {
+                            if (read(fd, seq + 4, 1) == 0)
+                                return ESC;
+
+                            switch (seq[4])
+                            {
+                            case 'A':
+                                return CTRL_ARROW_UP;
+                            case 'B':
+                                return CTRL_ARROW_DOWN;
+                            case 'C':
+                                return CTRL_ARROW_RIGHT;
+                            case 'D':
+                                return CTRL_ARROW_LEFT;
                             }
                         }
                         else if (seq[3] == '6')
@@ -1589,6 +1610,16 @@ void editorMoveCursor(int key)
 
     switch (key)
     {
+    case CTRL_ARROW_LEFT:
+        if (E.cx == 0) /* Same as hitting left */
+            goto ARROW_LEFT;
+
+        break;
+
+    case CTRL_ARROW_RIGHT:
+        break;
+
+    ARROW_LEFT:
     case ARROW_LEFT:
         if (E.cx == 0)
         {
@@ -1720,11 +1751,16 @@ rehandle:
         editorInsertNewline();
         break;
 
+    case CTRL_ARROW_UP:
+    case CTRL_ARROW_DOWN:
+        break;
+
     case CTRL_SHIFT_ARROW_UP:
     case CTRL_SHIFT_ARROW_DOWN:
     case SHIFT_ARROW_UP:
     case SHIFT_ARROW_DOWN:
         break; // for right now we only support select up and down
+
     case CTRL_SHIFT_ARROW_LEFT:
     case CTRL_SHIFT_ARROW_RIGHT:
     case SHIFT_ARROW_LEFT:
@@ -1790,6 +1826,8 @@ rehandle:
         }
         break;
 
+    case CTRL_ARROW_LEFT:
+    case CTRL_ARROW_RIGHT:
     case ARROW_UP:
     case ARROW_DOWN:
     case ARROW_LEFT:
