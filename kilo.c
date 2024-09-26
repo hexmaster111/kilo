@@ -184,6 +184,10 @@ enum KEY_ACTION
     SHIFT_ARROW_RIGHT,
     SHIFT_ARROW_UP,
     SHIFT_ARROW_DOWN,
+    CTRL_SHIFT_ARROW_LEFT,
+    CTRL_SHIFT_ARROW_RIGHT,
+    CTRL_SHIFT_ARROW_UP,
+    CTRL_SHIFT_ARROW_DOWN,
 };
 
 void editorSetStatusMessage(const char *fmt, ...);
@@ -388,6 +392,23 @@ int editorReadKey(int fd)
                                 return SHIFT_ARROW_RIGHT;
                             case 'D':
                                 return SHIFT_ARROW_LEFT;
+                            }
+                        }
+                        else if (seq[3] == '6')
+                        {
+                            if (read(fd, seq + 4, 1) == 0)
+                                return ESC;
+
+                            switch (seq[4])
+                            {
+                            case 'A':
+                                return CTRL_SHIFT_ARROW_UP;
+                            case 'B':
+                                return CTRL_SHIFT_ARROW_DOWN;
+                            case 'C':
+                                return CTRL_SHIFT_ARROW_RIGHT;
+                            case 'D':
+                                return CTRL_SHIFT_ARROW_LEFT;
                             }
                         }
                     }
@@ -1464,6 +1485,33 @@ int editorSelectText(int fd, int c)
                 E.se++;
             }
         }
+        else if (c == CTRL_SHIFT_ARROW_RIGHT)
+        {
+            while (E.se < r.size)
+            {
+
+                editorMoveCursor(ARROW_RIGHT);
+                E.se++;
+
+                char c = r.chars[E.se];
+
+                if (is_separator(c))
+                    break;
+            }
+        }
+        else if (c == CTRL_SHIFT_ARROW_LEFT)
+        {
+            while (E.se > 0)
+            {
+                editorMoveCursor(ARROW_LEFT);
+                E.se--;
+
+                char c = r.chars[E.se];
+
+                if (is_separator(c))
+                    break;
+            }
+        }
         else if (c == CTRL_C) /* COPY */
         {
             if (startIdx + len > r.size)
@@ -1520,7 +1568,7 @@ int editorSelectText(int fd, int c)
         }
 
         editorSetStatusMessage(
-            "Select: %d chars (Use ESC/Shift Arrows/Ctrl C/Ctrl V/Ctrl X)", abs(E.ss - E.se));
+            "Select: %d chars (Use ESC/CTRL/Shift/ Arrows/Ctrl C/Ctrl V/Ctrl X)", abs(E.ss - E.se));
         editorRefreshScreen();
 
         c = editorReadKey(fd);
@@ -1672,9 +1720,13 @@ rehandle:
         editorInsertNewline();
         break;
 
+    case CTRL_SHIFT_ARROW_UP:
+    case CTRL_SHIFT_ARROW_DOWN:
     case SHIFT_ARROW_UP:
     case SHIFT_ARROW_DOWN:
         break; // for right now we only support select up and down
+    case CTRL_SHIFT_ARROW_LEFT:
+    case CTRL_SHIFT_ARROW_RIGHT:
     case SHIFT_ARROW_LEFT:
     case SHIFT_ARROW_RIGHT:
         c = editorSelectText(fd, c);
