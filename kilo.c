@@ -1611,14 +1611,23 @@ void editorMoveCursor(int key)
     switch (key)
     {
     case CTRL_ARROW_LEFT:
+    {
+
         if (E.cx == 0) /* Same as hitting left */
             goto ARROW_LEFT;
 
-        break;
+        char c = row->chars[filecol];
 
-    case CTRL_ARROW_RIGHT:
-        break;
+        do
+        {
+            editorMoveCursor(ARROW_LEFT);
+            c = row->chars[E.cx + E.coloff];
+            if (E.cx == 0)
+                break;
 
+        } while (!is_separator(c));
+    }
+    break;
     ARROW_LEFT:
     case ARROW_LEFT:
         if (E.cx == 0)
@@ -1646,6 +1655,29 @@ void editorMoveCursor(int key)
             E.cx -= 1;
         }
         break;
+
+    case CTRL_ARROW_RIGHT:
+    {
+
+        if (row && filecol == row->size) /* end of line */
+            goto ARROW_RIGHT;
+
+        char c = row->chars[filecol];
+
+        do
+        {
+            editorMoveCursor(ARROW_RIGHT);
+            c = row->chars[E.cx + E.coloff];
+
+            if (E.cy + E.coloff == row->size)
+                break;
+
+        } while (!is_separator(c));
+    }
+
+    break;
+
+    ARROW_RIGHT:
     case ARROW_RIGHT:
         if (row && filecol < row->size)
         {
