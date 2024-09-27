@@ -1031,11 +1031,6 @@ fixcursor:
     E.coloff = 0;
 }
 
-/* Delete char from the from of the prompt */
-void editorDelChar()
-{
-}
-
 /* Backspace the char at the prompt. */
 void editorBackspaceChar()
 {
@@ -1076,6 +1071,23 @@ void editorBackspaceChar()
     if (row)
         editorUpdateRow(row);
     E.dirty++;
+}
+
+/* Delete char from the from of the prompt */
+void editorDelChar()
+{
+    int filerow = E.rowoff + E.cy;
+    int filecol = E.coloff + E.cx;
+    erow *row = (filerow >= E.numrows) ? NULL : &E.row[filerow];
+
+    if (!row)
+        return;
+
+    editorRowDelChar(row, filecol);
+
+    /* in the case that we are at the end of the line, we have to
+     * shift the rows below us up
+     */
 }
 
 /* Load the specified program in the editor memory and returns 0 on success
