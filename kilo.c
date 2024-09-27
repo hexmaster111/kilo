@@ -54,6 +54,8 @@
 #include <fcntl.h>
 #include <signal.h>
 
+#include <assert.h>
+
 /* Syntax highlight types */
 #define HL_NORMAL 0
 #define HL_NONPRINT 1
@@ -112,6 +114,67 @@ struct editorSyntax
     int flags;
 };
 
+enum USER_INPUT_ACTION
+{
+    UIA_CHAR_ENTERED,
+    UIA_CHAR_BACKSPACE,
+    UIA_CHAR_DELETE,
+    UIA_CURSOR_MOVE,
+};
+
+struct UNDO_ITEM
+{
+    enum USER_INPUT_ACTION action;
+    int arg;
+} UNDO_ITEM;
+
+typedef struct STACK
+{
+    int l, /* length */
+        t; /* top    */
+
+    struct UNDO_ITEM *d; /* data   */
+} STACK;
+
+void stack_init(STACK *self)
+{
+    self->l = 1;
+    self->d = malloc(sizeof(UNDO_ITEM) * self->l);
+    self->t = 0;
+}
+
+void stack_free(STACK *self)
+{
+    free(self->d);
+    self->l = 0;
+    self->t = -1;
+}
+
+void stack_push(STACK *self, struct UNDO_ITEM d)
+{
+    self->d[self->t] = d;
+
+    self->t = self->t + 1;
+    if (self->t >= self->l)
+    {
+        int *new = realloc(self->d, sizeof(UNDO_ITEM) * (self->l * 2));
+        if (new)
+            self->d = new;
+        else
+            abort(); /* realloc faild.... idk crash seems like a good idea? */
+    }
+}
+
+struct UNDO_ITEM stack_pop(STACK *self)
+{
+    if (0 >= self->t)
+        assert(0 && "Nothing to pop");
+
+    self->t = self->t - 1;
+
+    return self->d[self->t];
+}
+
 /* This structure represents a single line of the file we are editing. */
 typedef struct erow
 {
@@ -146,6 +209,7 @@ struct editorConfig
     char statusmsg[80];
     time_t statusmsg_time;
 
+    struct STACK undostack;
     struct abuf clipboard;
     struct editorSyntax *syntax; /* Current syntax highlight, or NULL. */
 };
@@ -167,6 +231,8 @@ enum KEY_ACTION
     CTRL_U = 21,  /* Ctrl-u */
     CTRL_V = 22,
     CTRL_X = 24,
+    CTRL_Y = 25,
+    CTRL_Z = 26,
     ESC = 27,        /* Escape */
     BACKSPACE = 127, /* Backspace */
     /* The following are just soft codes, not really reported by the
@@ -1806,6 +1872,10 @@ void editorProcessKeypress(int fd)
 rehandle:
     switch (c)
     {
+    case CTRL_Z: /* undo */
+    case CTRL_Y: /* redo */
+        break;
+
     case ENTER: /* Enter */
         editorInsertNewline();
         break;
