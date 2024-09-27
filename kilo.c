@@ -1769,6 +1769,18 @@ void editorCutCurrentLine()
     editorSetStatusMessage("Cut %d chars", r.size);
 }
 
+void editorScroll(int c)
+{
+    if (c == CTRL_ARROW_UP && E.rowoff > 0)
+    {
+        E.rowoff -= 1;
+    }
+    else if (c == CTRL_ARROW_DOWN)
+    {
+        E.rowoff += 1;
+    }
+}
+
 /* Process events arriving from the standard input, which is, the user
  * is typing stuff on the terminal. */
 #define KILO_QUIT_TIMES 3
@@ -1788,6 +1800,7 @@ rehandle:
 
     case CTRL_ARROW_UP:
     case CTRL_ARROW_DOWN:
+        editorScroll(c);
         break;
 
     case CTRL_SHIFT_ARROW_UP:
@@ -1802,7 +1815,7 @@ rehandle:
     case SHIFT_ARROW_RIGHT:
         c = editorSelectText(fd, c);
         if (c)
-            goto rehandle; // user did something non-select related, lets handle it
+            goto rehandle; /* user did something non-select related, lets handle it */
         break;
 
     case CTRL_C: /* Copy entire line */
