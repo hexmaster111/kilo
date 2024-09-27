@@ -1662,17 +1662,20 @@ void editorMoveCursor(int key)
         if (row && filecol == row->size) /* end of line */
             goto ARROW_RIGHT;
 
-        char c = row->chars[filecol];
-
-        do
+        if (row)
         {
-            editorMoveCursor(ARROW_RIGHT);
-            c = row->chars[E.cx + E.coloff];
+            char c = row->chars[filecol];
 
-            if (E.cy + E.coloff == row->size)
-                break;
+            do
+            {
+                editorMoveCursor(ARROW_RIGHT);
+                c = row->chars[E.cx + E.coloff];
 
-        } while (!is_separator(c));
+                if (E.cy + E.coloff == row->size)
+                    break;
+
+            } while (!is_separator(c));
+        }
     }
 
     break;
