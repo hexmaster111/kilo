@@ -122,7 +122,7 @@ enum USER_INPUT_ACTION
     UIA_CURSOR_MOVE,
 };
 
-struct UNDO_ITEM
+typedef struct UNDO_ITEM
 {
     enum USER_INPUT_ACTION action;
     int arg;
@@ -133,7 +133,7 @@ typedef struct STACK
     int l, /* length */
         t; /* top    */
 
-    struct UNDO_ITEM *d; /* data   */
+    UNDO_ITEM *d; /* data   */
 } STACK;
 
 void stack_init(STACK *self)
@@ -150,7 +150,7 @@ void stack_free(STACK *self)
     self->t = -1;
 }
 
-void stack_push(STACK *self, struct UNDO_ITEM d)
+void stack_push(STACK *self,  UNDO_ITEM d)
 {
     self->d[self->t] = d;
 
@@ -159,13 +159,13 @@ void stack_push(STACK *self, struct UNDO_ITEM d)
     {
         int *new = realloc(self->d, sizeof(UNDO_ITEM) * (self->l * 2));
         if (new)
-            self->d = new;
+            self->d = (UNDO_ITEM*)new;
         else
             abort(); /* realloc faild.... idk crash seems like a good idea? */
     }
 }
 
-struct UNDO_ITEM stack_pop(STACK *self)
+UNDO_ITEM stack_pop(STACK *self)
 {
     if (0 >= self->t)
         assert(0 && "Nothing to pop");
